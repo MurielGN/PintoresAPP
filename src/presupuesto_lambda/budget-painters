@@ -1,0 +1,73 @@
+const AWS = require("aws-sdk");
+const dynamo = new AWS.DynamoDB.DocumentClient();
+
+async function queryItems(tabla, valor) {
+  var params = {
+    TableName: tabla,
+    KeyConditionExpression: "#name = :value",
+    ExpressionAttributeValues: { ":value": valor },
+    ExpressionAttributeNames: { "#name": "id" },
+  };
+
+  const data = await dynamo.query(params).promise();
+  if (data.Items[0] == undefined) {
+    throw new Error("item with id: " + valor + " not found");
+  } else {
+    return data.Items[0];
+  }
+}
+
+function verify(value) {
+  if (value <= 0 || isNaN(value)) {
+    throw new Error("The value " + value + " is invalid");
+  }
+}
+
+exports.handler = async (event, context) => {
+  try {
+    
+    const statusCode = 200;
+    let data = event;
+    let budget = 0
+    
+    
+    for (let house of data) {
+      let tmpBudget = 0;
+      for (let material of house.materials) {
+        verify(material.amount)
+        
+        let materialDB = await queryItems("materials", material.id);
+        tmpBudget += materialDB.price * material.amount;
+      }
+
+      for (let paint of house.paints) {
+        verify(paint.surface)
+        
+        let pinturaBD = await queryItems("paints", paint.id);
+        tmpBudget += (paint.surface / pinturaBD.efficiency) * pinturaBD.price;
+      }
+
+      tmpBudget *= house.numberofhouses;
+      console.log("PRESUPUESTO SIN GANANCIAS " + tmpBudget);
+
+      tmpBudget *= 1 + house.benefits / 100;
+
+      console.log("PRESUPUESTO CON GANANCIAS " + tmpBudget);
+
+      budget += tmpBudget;
+
+      budget = Math.round(budget * 100) / 100;
+    }
+
+    return {
+      statusCode,
+      budget: budget,
+    };
+    
+  } catch (err) {
+    return {
+      statusCode: 404,
+      Error: err.toString(),
+    };
+  }
+};
