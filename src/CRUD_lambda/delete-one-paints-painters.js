@@ -19,29 +19,26 @@ exports.handler = async (event, context) => {
   let body;
   statusCode = 200;
   
-  
   try {
 
-    body = await dynamo.delete({ 
-      TableName: TABLE_DYNAMODB,
-      ReturnValues: "ALL_OLD",
-      Key: {
-        element: 'paint',
-        id: verify(event.id)
+      body = await dynamo.delete({ 
+        TableName: TABLE_DYNAMODB,
+        ReturnValues: "ALL_OLD",
+        Key: {
+          element: 'paint',
+          id: verify(event.id)
+        }
+      }).promise();
+      
+      if(body.Attributes == undefined){
+        statusCode = 404;
+        throw new Error("Paint with id: " + event.id + " not found");
       }
-    }).promise();
-    
-    console.log("Status: "+ statusCode);
-    
-    if(body.Attributes == undefined){
-      statusCode = 404;
-      throw new Error("Paint with id: " + event.id + " not found");
-    }
-    
-      return {
-      statusCode,
-      body
-    };
+      
+        return {
+        statusCode,
+        body
+      };
   
   } catch (err) {
     return {
