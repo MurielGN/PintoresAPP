@@ -11,7 +11,7 @@ async function queryItems(filterStarWith){
     
     KeyConditionExpression: '#partitionKeyName = :partitionkeyval',
     FilterExpression: 'begins_with (#starWith, :substr)',
-    ExpressionAttributeValues: { ':partitionkeyval': 'paint', ':substr': filterStarWith},
+    ExpressionAttributeValues: { ':partitionkeyval': 'material', ':substr': filterStarWith},
     ExpressionAttributeNames: { '#partitionKeyName': 'element', '#starWith': 'name' },
   }
   
@@ -29,7 +29,7 @@ exports.handler = async (event, context) => {
   let body;
   let statusCode = 200;
 
-  let filterStarWith = event.filter;
+  let filterStarWith = event.expression;
   body = await queryItems(filterStarWith);
   
     return {
