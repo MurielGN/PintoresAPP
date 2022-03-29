@@ -11,7 +11,7 @@ async function queryItems(){
     
     KeyConditionExpression: '#partitionKeyName = :partitionkeyval',
 
-    ExpressionAttributeValues: { ':partitionkeyval': 'paint' },
+    ExpressionAttributeValues: { ':partitionkeyval': 'material' },
     ExpressionAttributeNames: { '#partitionKeyName': 'element' }
   }
   
@@ -33,7 +33,8 @@ exports.handler = async (event, context) => {
   
     return {
     statusCode,
-    body
+    body,
+
   };
 
 }
