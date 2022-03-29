@@ -2,15 +2,17 @@ const AWS = require("aws-sdk");
 
 const DYNAMO = new AWS.DynamoDB.DocumentClient();
 
-const TABLE_DYNAMODB = "materials2";
+const TABLE_DYNAMODB = "materials";
 
 
 async function queryItems(){
   var params = {
     TableName: TABLE_DYNAMODB,
-    KeyConditionExpression: '#partitionKeyName = :partitionkeyval AND begins_with ( #sortKeyName, :sortkeyval )',
-    ExpressionAttributeValues: { ':partitionkeyval': 1, ':sortkeyval': 'l',},
-    ExpressionAttributeNames: { '#partitionKeyName': 'id', '#sortKeyName': 'name' }
+    
+    KeyConditionExpression: '#partitionKeyName = :partitionkeyval',
+
+    ExpressionAttributeValues: { ':partitionkeyval': 'paint' },
+    ExpressionAttributeNames: { '#partitionKeyName': 'element' }
   }
   
   try {
@@ -26,16 +28,12 @@ async function queryItems(){
 exports.handler = async (event, context) => {
   let body;
   let statusCode = 200;
-  const headers = {
-    "Content-Type": "application/json"
-  };
   
   body = await queryItems();
   
     return {
     statusCode,
-    body,
-    //headers
+    body
   };
 
 }
