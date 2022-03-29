@@ -17,7 +17,7 @@ function verify(value) {
 
 exports.handler = async (event, context) => {
   let body;
-  let statusCode = 200;
+  statusCode = 200;
   
   
   try {
@@ -30,6 +30,8 @@ exports.handler = async (event, context) => {
         id: verify(event.id)
       }
     }).promise();
+    
+    console.log("Status: "+ statusCode);
     
     if(body.Attributes == undefined){
       statusCode = 404;
