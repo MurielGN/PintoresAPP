@@ -1,17 +1,25 @@
 const AWS = require("aws-sdk");
 const dynamo = new AWS.DynamoDB.DocumentClient();
 
-async function queryItems(tabla, valor) {
-  var params = {
+async function queryItems(tabla, valor, element) {
+    var params = {
     TableName: tabla,
-    KeyConditionExpression: "#name = :value",
-    ExpressionAttributeValues: { ":value": valor },
-    ExpressionAttributeNames: { "#name": "id" },
+    KeyConditionExpression:
+      "#partitionKeyName = :partitionkeyval AND #sortKeyName = :sortkeyval",
+    ExpressionAttributeValues: {
+      ":partitionkeyval": element,
+      ":sortkeyval": valor,
+    },
+    ExpressionAttributeNames: {
+      "#partitionKeyName": "element",
+      "#sortKeyName": "id",
+    },
   };
 
   const data = await dynamo.query(params).promise();
   if (data.Items[0] == undefined) {
-    throw new Error("item with id: " + valor + " not found");
+    console.log(valor)
+    throw new Error("item with id: " + valor + " not found"+data.Items);
   } else {
     return data.Items[0];
   }
@@ -36,14 +44,14 @@ exports.handler = async (event, context) => {
       for (let material of house.materials) {
         verify(material.amount)
         
-        let materialDB = await queryItems("materials", material.id);
+        let materialDB = await queryItems("materials", material.id,"material");
         tmpBudget += materialDB.price * material.amount;
       }
 
       for (let paint of house.paints) {
         verify(paint.surface)
         
-        let pinturaBD = await queryItems("paints", paint.id);
+        let pinturaBD = await queryItems("paints", paint.id,"paint");
         tmpBudget += (paint.surface / pinturaBD.efficiency) * pinturaBD.price;
       }
 
