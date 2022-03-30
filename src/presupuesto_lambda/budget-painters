@@ -36,7 +36,7 @@ exports.handler = async (event, context) => {
   try {
     
     const statusCode = 200;
-    let data = event;
+    let data = event.item;
     let budget = 0
     
     
